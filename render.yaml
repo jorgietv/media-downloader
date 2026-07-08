@@ -1,0 +1,14 @@
+# One-click Render Blueprint. In Render, choose "New +" → "Blueprint",
+# point it at your repo, and it reads this file automatically.
+services:
+  - type: web
+    name: hq-media-downloader
+    runtime: docker
+    plan: free            # upgrade to "starter" ($7/mo) for no sleep + more RAM for 4K
+    healthCheckPath: /healthz
+    envVars:
+      - key: FILE_TTL_SECONDS
+        value: "1800"
+      # Optional — paste a cookies.txt export here to beat YouTube bot-blocks:
+      # - key: COOKIES
+      #   sync: false
