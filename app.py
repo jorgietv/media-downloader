@@ -15,6 +15,7 @@ import tempfile
 import threading
 import time
 import uuid
+import zipfile
 from pathlib import Path
 
 import yt_dlp
@@ -101,6 +102,10 @@ class DownloadReq(BaseModel):
     url: str
     mode: str = "video"           # "video" | "audio"
     quality: str = "best"         # video: best|2160|1440|1080|720  audio: mp3|original
+
+
+class ZipReq(BaseModel):
+    job_ids: list[str]
 
 
 # --------------------------------------------------------------------------- #
@@ -251,6 +256,33 @@ def get_file(job_id: str):
         filename=job["filename"],
         media_type="application/octet-stream",
     )
+
+
+@app.post("/api/zip")
+def zip_files(req: ZipReq):
+    """Bundle several finished downloads into one .zip (for bulk downloads)."""
+    items = []
+    for jid in req.job_ids:
+        job = JOBS.get(jid)
+        if job and job.get("status") == "done" and job.get("filepath"):
+            items.append((job["filename"], job["filepath"]))
+    if not items:
+        raise HTTPException(status_code=404, detail="No finished files to zip")
+
+    zip_path = WORK_DIR / f"bundle_{uuid.uuid4().hex[:8]}.zip"
+    seen: dict[str, int] = {}
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_STORED) as zf:
+        for name, path in items:
+            # Avoid clobbering identical filenames inside the archive.
+            arc = name
+            if arc in seen:
+                seen[arc] += 1
+                stem, dot, ext = name.rpartition(".")
+                arc = f"{stem}_{seen[name]}.{ext}" if dot else f"{name}_{seen[name]}"
+            else:
+                seen[arc] = 0
+            zf.write(path, arcname=arc)
+    return FileResponse(str(zip_path), filename="downloads.zip", media_type="application/zip")
 
 
 # --------------------------------------------------------------------------- #
