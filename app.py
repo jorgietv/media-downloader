@@ -41,11 +41,20 @@ WORK_DIR.mkdir(parents=True, exist_ok=True)
 # In-memory job store. Fine for a single-instance personal service.
 JOBS: dict[str, dict] = {}
 
-# Optional: paste a cookies.txt export into the COOKIES env var to beat
-# "Sign in to confirm you're not a bot" and reach private / members content.
+# Cookies to beat "Sign in to confirm you're not a bot" and reach private /
+# members content. Any ONE of these works:
+#   1. A Render "Secret File" mounted at /etc/secrets/cookies.txt  (easiest)
+#   2. A path in the COOKIES_FILE env var
+#   3. The whole cookies.txt text pasted into the COOKIES env var
 COOKIEFILE: Path | None = None
+_custom_cookie = os.environ.get("COOKIES_FILE", "").strip()
+_secret_cookie = Path("/etc/secrets/cookies.txt")
 _cookies_env = os.environ.get("COOKIES", "").strip()
-if _cookies_env:
+if _custom_cookie and Path(_custom_cookie).exists():
+    COOKIEFILE = Path(_custom_cookie)
+elif _secret_cookie.exists():
+    COOKIEFILE = _secret_cookie
+elif _cookies_env:
     COOKIEFILE = WORK_DIR / "cookies.txt"
     COOKIEFILE.write_text(_cookies_env)
 
@@ -62,6 +71,11 @@ def _base_opts() -> dict:
         "no_warnings": True,
         "noplaylist": True,
         "restrictfilenames": True,
+        # Try YouTube player clients that often slip past datacenter bot-blocks
+        # (the "Sign in to confirm you're not a bot" wall) without needing cookies.
+        "extractor_args": {
+            "youtube": {"player_client": ["tv", "ios", "web_safari", "mweb", "web"]}
+        },
     }
     if COOKIEFILE:
         opts["cookiefile"] = str(COOKIEFILE)
