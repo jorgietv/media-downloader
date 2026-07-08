@@ -4,11 +4,13 @@ services:
   - type: web
     name: hq-media-downloader
     runtime: docker
-    plan: free            # upgrade to "starter" ($7/mo) for no sleep + more RAM for 4K
+    plan: starter         # $7/mo — never sleeps + more CPU
     healthCheckPath: /healthz
     envVars:
       - key: FILE_TTL_SECONDS
         value: "1800"
+      - key: PROFILE_LIMIT
+        value: "100"        # max videos pulled from one profile/channel per grab
       # Optional — paste a cookies.txt export here to beat YouTube bot-blocks:
       # - key: COOKIES
       #   sync: false
