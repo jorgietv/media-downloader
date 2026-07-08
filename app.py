@@ -106,6 +106,17 @@ class DownloadReq(BaseModel):
 
 class ZipReq(BaseModel):
     job_ids: list[str]
+    names: dict[str, str] | None = None   # optional {job_id: custom filename}
+
+
+def _safe_name(user_name: str | None, original: str) -> str:
+    """Sanitize a user-chosen filename, always keeping the real extension."""
+    ext = Path(original).suffix
+    if not user_name:
+        return original
+    base = "".join(c for c in user_name if c not in '/\\:*?"<>|\n\r\t').strip()
+    base = base or Path(original).stem
+    return base if base.lower().endswith(ext.lower()) else base + ext
 
 
 # --------------------------------------------------------------------------- #
@@ -247,13 +258,13 @@ def status(job_id: str):
 
 
 @app.get("/api/file/{job_id}")
-def get_file(job_id: str):
+def get_file(job_id: str, name: str | None = None):
     job = JOBS.get(job_id)
     if not job or job.get("status") != "done" or not job.get("filepath"):
         raise HTTPException(status_code=404, detail="File not ready")
     return FileResponse(
         job["filepath"],
-        filename=job["filename"],
+        filename=_safe_name(name, job["filename"]),
         media_type="application/octet-stream",
     )
 
@@ -261,11 +272,12 @@ def get_file(job_id: str):
 @app.post("/api/zip")
 def zip_files(req: ZipReq):
     """Bundle several finished downloads into one .zip (for bulk downloads)."""
+    names = req.names or {}
     items = []
     for jid in req.job_ids:
         job = JOBS.get(jid)
         if job and job.get("status") == "done" and job.get("filepath"):
-            items.append((job["filename"], job["filepath"]))
+            items.append((_safe_name(names.get(jid), job["filename"]), job["filepath"]))
     if not items:
         raise HTTPException(status_code=404, detail="No finished files to zip")
 

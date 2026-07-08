@@ -62,6 +62,11 @@
   .bar { height: 7px; background: var(--panel); border-radius: 999px; overflow: hidden; border: 1px solid var(--line); margin-top: 9px; }
   .fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .3s ease; }
   .item.err .item-right { color: #ffb3b3; }
+  .rename { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 7px 10px; font-size: 13px; font-family: inherit; outline: none; }
+  .rename:focus { border-color: var(--accent); }
+  .ext { color: var(--muted); font-size: 13px; flex-shrink: 0; }
+  .dl { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border: none; border-radius: 8px; padding: 8px 13px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; flex-shrink: 0; }
+  .dl:hover { opacity: .9; }
   footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 22px; line-height: 1.6; }
 </style>
 </head>
@@ -201,8 +206,30 @@ https://www.instagram.com/reel/..."></textarea>
             return resolve();
           }
           if (s.status === "done") {
-            row.status = "done"; row.dot.className = "dot ok"; row.fill.style.width = "100%";
-            row.right.innerHTML = '<a href="/api/file/' + row.jobId + '" download>⬇ Download</a>';
+            row.status = "done"; row.fill.style.width = "100%";
+            row.filename = s.filename || "download";
+            const d = row.filename.lastIndexOf(".");
+            const base = d > 0 ? row.filename.slice(0, d) : row.filename;
+            row.ext = d > 0 ? row.filename.slice(d) : "";
+            const top = row.el.querySelector(".item-top");
+            top.innerHTML =
+              '<span class="dot ok"></span>' +
+              '<input class="rename" spellcheck="false" title="Edit the file name before downloading" />' +
+              '<span class="ext"></span>' +
+              '<a class="dl" download>⬇ Download</a>';
+            const input = top.querySelector(".rename");
+            input.value = base;
+            top.querySelector(".ext").textContent = row.ext;
+            row.nameInput = input;
+            const dl = top.querySelector(".dl");
+            const buildHref = () => {
+              const nm = (input.value.trim() || base) + row.ext;
+              dl.href = "/api/file/" + row.jobId + "?name=" + encodeURIComponent(nm);
+              dl.setAttribute("download", nm);
+            };
+            buildHref();
+            input.addEventListener("input", buildHref);
+            updateZipBar();
             return resolve();
           }
           const pct = s.progress || 0;
@@ -224,13 +251,16 @@ https://www.instagram.com/reel/..."></textarea>
   }
 
   async function downloadZip() {
-    const ids = rows.filter(r => r.status === "done").map(r => r.jobId);
-    if (!ids.length) return;
+    const done = rows.filter(r => r.status === "done");
+    if (!done.length) return;
+    const ids = done.map(r => r.jobId);
+    const names = {};
+    done.forEach(r => { if (r.nameInput) names[r.jobId] = (r.nameInput.value.trim() || "") + (r.ext || ""); });
     const btn = $("zipBtn"); btn.disabled = true; btn.textContent = "Zipping…";
     try {
       const r = await fetch("/api/zip", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ job_ids: ids }),
+        body: JSON.stringify({ job_ids: ids, names }),
       });
       if (!r.ok) throw new Error("zip failed");
       const blob = await r.blob();
