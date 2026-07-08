@@ -17,7 +17,7 @@
     background: radial-gradient(1100px 600px at 50% -10%, #1a2436 0%, var(--bg) 55%);
     color: var(--text); display: flex; justify-content: center; padding: 40px 16px 64px;
   }
-  .wrap { width: 100%; max-width: 660px; }
+  .wrap { width: 100%; max-width: 680px; }
   header { text-align: center; margin-bottom: 22px; }
   h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -0.02em; }
   .sub { color: var(--muted); font-size: 14px; }
@@ -25,10 +25,9 @@
   .badge { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; background: var(--panel); }
   .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.35); }
   textarea {
-    width: 100%; min-height: 104px; resize: vertical;
-    background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
-    border-radius: 10px; padding: 13px 14px; font-size: 15px; outline: none;
-    font-family: inherit; line-height: 1.5;
+    width: 100%; min-height: 104px; resize: vertical; background: var(--panel-2);
+    border: 1px solid var(--line); color: var(--text); border-radius: 10px;
+    padding: 13px 14px; font-size: 15px; outline: none; font-family: inherit; line-height: 1.5;
   }
   textarea:focus { border-color: var(--accent); }
   .hint { color: var(--muted); font-size: 12px; margin: 7px 2px 0; }
@@ -42,6 +41,21 @@
   button.primary:hover { opacity: .93; }
   button.primary:disabled { opacity: .5; cursor: not-allowed; }
   .go { width: 100%; margin-top: 16px; }
+  .selbar { display: none; margin-top: 18px; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .selleft { display: flex; align-items: center; gap: 8px; }
+  .chip { border: 1px solid var(--line); background: var(--panel-2); color: var(--text); border-radius: 999px; padding: 7px 13px; font-size: 13px; cursor: pointer; }
+  .chip:hover { border-color: var(--accent); }
+  .selcount { color: var(--muted); font-size: 13px; }
+  .selbar .primary { padding: 11px 16px; font-size: 14px; }
+  .previews { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+  .pcard { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); padding: 10px 12px; cursor: pointer; transition: border-color .15s; }
+  .pcard.sel { border-color: var(--accent); }
+  .pcard input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
+  .pthumb { position: relative; width: 100px; height: 60px; border-radius: 8px; background: #0a0e16; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #4a5a70; font-size: 20px; overflow: hidden; }
+  .pthumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .pinfo { min-width: 0; flex: 1; }
+  .ptitle { font-size: 14px; font-weight: 600; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .pdur { color: var(--muted); font-size: 12px; margin-top: 3px; }
   .zipbar { display: none; margin-top: 16px; gap: 10px; align-items: center; justify-content: space-between; }
   .zipbtn { border: 1px solid var(--line); background: var(--panel-2); color: var(--text); border-radius: 10px; padding: 11px 16px; font-size: 14px; font-weight: 600; cursor: pointer; }
   .zipbtn:hover { border-color: var(--accent); }
@@ -50,6 +64,8 @@
   .items { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
   .item { border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); padding: 12px 14px; }
   .item-top { display: flex; align-items: center; gap: 10px; }
+  .rthumb { position: relative; width: 56px; height: 34px; border-radius: 6px; background: #0a0e16; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #4a5a70; font-size: 13px; overflow: hidden; }
+  .rthumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
   .dot.run { background: var(--accent); animation: pulse 1s infinite; }
   .dot.ok { background: var(--ok); }
@@ -57,16 +73,14 @@
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
   .item-title { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
   .item-right { font-size: 12px; color: var(--muted); flex-shrink: 0; }
-  .item-right a { color: var(--ok); font-weight: 600; text-decoration: none; }
-  .item-right a:hover { text-decoration: underline; }
-  .bar { height: 7px; background: var(--panel); border-radius: 999px; overflow: hidden; border: 1px solid var(--line); margin-top: 9px; }
-  .fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .3s ease; }
   .item.err .item-right { color: #ffb3b3; }
   .rename { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 7px 10px; font-size: 13px; font-family: inherit; outline: none; }
   .rename:focus { border-color: var(--accent); }
   .ext { color: var(--muted); font-size: 13px; flex-shrink: 0; }
   .dl { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border: none; border-radius: 8px; padding: 8px 13px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; flex-shrink: 0; }
   .dl:hover { opacity: .9; }
+  .bar { height: 7px; background: var(--panel); border-radius: 999px; overflow: hidden; border: 1px solid var(--line); margin-top: 9px; }
+  .fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .3s ease; }
   footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 22px; line-height: 1.6; }
 </style>
 </head>
@@ -74,11 +88,11 @@
   <div class="wrap">
     <header>
       <h1>HQ Media Downloader</h1>
-      <div class="sub">Paste one or many links — get them back at the highest quality, audio + video.</div>
+      <div class="sub">Paste links or a profile — preview everything, pick what you want, download in highest quality.</div>
       <div class="badges">
         <span class="badge">YouTube</span><span class="badge">TikTok</span>
         <span class="badge">Instagram</span><span class="badge">up to 4K</span>
-        <span class="badge">bulk</span>
+        <span class="badge">bulk + preview</span>
       </div>
     </header>
 
@@ -87,7 +101,7 @@
 https://www.tiktok.com/@username          (grabs the whole profile)
 https://www.youtube.com/watch?v=...
 https://www.instagram.com/reel/..."></textarea>
-      <div class="hint" id="hint">Tip: paste individual links, or a TikTok/channel <b>profile</b> URL to grab everything on it.</div>
+      <div class="hint" id="hint">Tip: paste individual links, or a TikTok/channel <b>profile</b> URL to preview everything on it.</div>
 
       <div class="controls">
         <div class="seg" id="modeSeg">
@@ -97,13 +111,22 @@ https://www.instagram.com/reel/..."></textarea>
         <select id="quality"></select>
       </div>
 
-      <button class="primary go" id="goBtn" onclick="startAll()">Download</button>
+      <button class="primary go" id="previewBtn" onclick="previewAll()">Preview</button>
+
+      <div class="selbar" id="selbar">
+        <div class="selleft">
+          <button class="chip" onclick="setAllChecked(true)">Select all</button>
+          <button class="chip" onclick="setAllChecked(false)">Clear</button>
+          <span class="selcount" id="selcount"></span>
+        </div>
+        <button class="primary" id="dlSelBtn" onclick="downloadSelected()">⬇ Download selected</button>
+      </div>
+      <div class="previews" id="previews"></div>
 
       <div class="zipbar" id="zipbar">
         <span class="summary" id="summary"></span>
         <button class="zipbtn" id="zipBtn" onclick="downloadZip()">⬇ Download all as ZIP</button>
       </div>
-
       <div class="items" id="items"></div>
     </div>
 
@@ -116,8 +139,21 @@ https://www.instagram.com/reel/..."></textarea>
 <script>
   const $ = (id) => document.getElementById(id);
   let mode = "video";
-  const MAX_CONCURRENT = 3;      // keep the free instance happy
-  let rows = [];                 // {url, jobId, status, el, fill, title, right}
+  const MAX_CONCURRENT = 3;
+  let previewItems = [];
+  let rows = [];
+
+  function fmtDuration(s) {
+    if (!s) return "";
+    s = Math.round(s);
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+    return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(x).padStart(2, "0");
+  }
+  function shortUrl(u) { try { const x = new URL(u); return x.hostname.replace(/^www\./, "") + x.pathname; } catch { return u; } }
+  function thumbTag(url, cls) {
+    return '<div class="' + cls + '">🎬' +
+      (url ? '<img src="/api/thumb?u=' + encodeURIComponent(url) + '" onerror="this.remove()">' : '') + '</div>';
+  }
 
   function setMode(m) {
     mode = m;
@@ -140,54 +176,87 @@ https://www.instagram.com/reel/..."></textarea>
       .filter(s => (seen.has(s) ? false : seen.add(s)));
   }
 
-  function shortUrl(u) { try { const x = new URL(u); return x.hostname.replace(/^www\./,"") + x.pathname; } catch { return u; } }
-
-  function makeRow(url) {
-    const el = document.createElement("div");
-    el.className = "item";
-    el.innerHTML =
-      '<div class="item-top"><span class="dot"></span>' +
-      '<span class="item-title"></span><span class="item-right">queued</span></div>' +
-      '<div class="bar"><div class="fill"></div></div>';
-    el.querySelector(".item-title").textContent = shortUrl(url);
-    $("items").appendChild(el);
-    return { url, jobId: null, status: "queued", el,
-      dot: el.querySelector(".dot"), title: el.querySelector(".item-title"),
-      right: el.querySelector(".item-right"), fill: el.querySelector(".fill") };
-  }
-
-  async function startAll() {
+  // ---- Phase 1: preview -----------------------------------------------------
+  async function previewAll() {
     const lines = parseLinks();
     if (!lines.length) { $("hint").textContent = "Please paste at least one valid link (starting with http)."; return; }
-    $("goBtn").disabled = true;
+    $("previewBtn").disabled = true;
+    $("previews").innerHTML = ""; $("selbar").style.display = "none";
     $("items").innerHTML = ""; $("zipbar").style.display = "none";
+    $("hint").textContent = "Loading previews…";
 
-    // Expand any profile / channel / playlist links into their individual videos.
-    $("hint").textContent = "Resolving links…";
-    let urls = [];
+    let all = [];
     for (const line of lines) {
       try {
         const res = await (await fetch("/api/expand", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: line }),
         })).json();
-        if (res && res.urls && res.urls.length) {
+        if (res && res.items && res.items.length) {
           if (res.is_profile) $("hint").textContent = "Found " + res.count + " item" + (res.count > 1 ? "s" : "") + " in " + (res.title || "profile") + "…";
-          urls.push(...res.urls);
-        } else { urls.push(line); }
-      } catch { urls.push(line); }
+          all.push(...res.items);
+        } else { all.push({ url: line, title: shortUrl(line), thumbnail: null, duration: null }); }
+      } catch { all.push({ url: line, title: shortUrl(line), thumbnail: null, duration: null }); }
     }
     const seen = new Set();
-    urls = urls.filter(u => (seen.has(u) ? false : seen.add(u)));
-    if (!urls.length) { $("hint").textContent = "Couldn't find anything to download at that link."; $("goBtn").disabled = false; return; }
-    $("hint").textContent = urls.length + " video" + (urls.length > 1 ? "s" : "") + " queued.";
+    previewItems = all.filter(it => it.url && (seen.has(it.url) ? false : seen.add(it.url)));
+    if (!previewItems.length) { $("hint").textContent = "Couldn't find anything at that link."; $("previewBtn").disabled = false; return; }
+    $("hint").textContent = previewItems.length + " found — untick any you don't want, then download.";
+    renderPreviews();
+    $("previewBtn").disabled = false;
+  }
 
-    rows = urls.map(makeRow);
+  function renderPreviews() {
+    const wrap = $("previews"); wrap.innerHTML = "";
+    previewItems.forEach(it => {
+      const card = document.createElement("div"); card.className = "pcard sel";
+      card.innerHTML = '<input type="checkbox" checked />' + thumbTag(it.thumbnail, "pthumb") +
+        '<div class="pinfo"><div class="ptitle"></div><div class="pdur"></div></div>';
+      card.querySelector(".ptitle").textContent = it.title || "video";
+      card.querySelector(".pdur").textContent = it.duration ? fmtDuration(it.duration) : "";
+      const cb = card.querySelector("input"); it.checkbox = cb; it.el = card;
+      cb.addEventListener("change", () => { card.classList.toggle("sel", cb.checked); updateSel(); });
+      card.addEventListener("click", (e) => { if (e.target !== cb) { cb.checked = !cb.checked; card.classList.toggle("sel", cb.checked); updateSel(); } });
+      wrap.appendChild(card);
+    });
+    $("selbar").style.display = "flex";
+    updateSel();
+  }
+
+  function setAllChecked(v) {
+    previewItems.forEach(it => { if (it.checkbox) { it.checkbox.checked = v; it.el.classList.toggle("sel", v); } });
+    updateSel();
+  }
+  function updateSel() {
+    const n = previewItems.filter(it => it.checkbox && it.checkbox.checked).length;
+    $("selcount").textContent = n + " of " + previewItems.length + " selected";
+    const b = $("dlSelBtn"); b.textContent = "⬇ Download selected (" + n + ")"; b.disabled = n === 0;
+  }
+
+  // ---- Phase 2: download selected -------------------------------------------
+  async function downloadSelected() {
+    const chosen = previewItems.filter(it => it.checkbox && it.checkbox.checked);
+    if (!chosen.length) return;
+    $("selbar").style.display = "none"; $("previews").innerHTML = "";
+    $("hint").textContent = chosen.length + " queued.";
+    $("items").innerHTML = ""; $("zipbar").style.display = "none";
+    rows = chosen.map(makeRow);
     let next = 0;
     const worker = async () => { while (next < rows.length) { await runOne(rows[next++]); } };
-    await Promise.all(Array.from({length: Math.min(MAX_CONCURRENT, rows.length)}, worker));
-    $("goBtn").disabled = false;
+    await Promise.all(Array.from({ length: Math.min(MAX_CONCURRENT, rows.length) }, worker));
     updateZipBar();
+  }
+
+  function makeRow(item) {
+    const el = document.createElement("div"); el.className = "item";
+    el.innerHTML = '<div class="item-top">' + thumbTag(item.thumbnail, "rthumb") +
+      '<span class="dot"></span><span class="item-title"></span><span class="item-right">queued</span></div>' +
+      '<div class="bar"><div class="fill"></div></div>';
+    el.querySelector(".item-title").textContent = item.title || shortUrl(item.url);
+    $("items").appendChild(el);
+    return { url: item.url, title: item.title, thumbnail: item.thumbnail, jobId: null, status: "queued",
+      el, dot: el.querySelector(".dot"), titleEl: el.querySelector(".item-title"),
+      right: el.querySelector(".item-right"), fill: el.querySelector(".fill") };
   }
 
   async function runOne(row) {
@@ -202,8 +271,7 @@ https://www.instagram.com/reel/..."></textarea>
       row.jobId = data.job_id;
       await poll(row);
     } catch (e) {
-      row.status = "error"; row.el.classList.add("err");
-      row.dot.className = "dot err"; row.right.textContent = e.message;
+      row.status = "error"; row.el.classList.add("err"); row.dot.className = "dot err"; row.right.textContent = e.message;
     }
   }
 
@@ -212,10 +280,9 @@ https://www.instagram.com/reel/..."></textarea>
       const tick = async () => {
         try {
           const s = await (await fetch("/api/status/" + row.jobId)).json();
-          if (s.title) row.title.textContent = s.title;
+          if (s.title) { row.title = s.title; row.titleEl.textContent = s.title; }
           if (s.status === "error") {
-            row.status = "error"; row.el.classList.add("err");
-            row.dot.className = "dot err"; row.right.textContent = s.error || "Failed";
+            row.status = "error"; row.el.classList.add("err"); row.dot.className = "dot err"; row.right.textContent = s.error || "Failed";
             return resolve();
           }
           if (s.status === "done") {
@@ -225,23 +292,20 @@ https://www.instagram.com/reel/..."></textarea>
             const base = d > 0 ? row.filename.slice(0, d) : row.filename;
             row.ext = d > 0 ? row.filename.slice(d) : "";
             const top = row.el.querySelector(".item-top");
-            top.innerHTML =
+            top.innerHTML = thumbTag(row.thumbnail, "rthumb") +
               '<span class="dot ok"></span>' +
-              '<input class="rename" spellcheck="false" title="Edit the file name before downloading" />' +
+              '<input class="rename" spellcheck="false" title="Edit the name before downloading" />' +
               '<span class="ext"></span>' +
               '<a class="dl" download>⬇ Download</a>';
-            const input = top.querySelector(".rename");
-            input.value = base;
-            top.querySelector(".ext").textContent = row.ext;
-            row.nameInput = input;
+            const input = top.querySelector(".rename"); input.value = base;
+            top.querySelector(".ext").textContent = row.ext; row.nameInput = input;
             const dl = top.querySelector(".dl");
-            const buildHref = () => {
+            const build = () => {
               const nm = (input.value.trim() || base) + row.ext;
               dl.href = "/api/file/" + row.jobId + "?name=" + encodeURIComponent(nm);
               dl.setAttribute("download", nm);
             };
-            buildHref();
-            input.addEventListener("input", buildHref);
+            build(); input.addEventListener("input", build);
             updateZipBar();
             return resolve();
           }

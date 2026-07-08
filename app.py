@@ -14,6 +14,7 @@ import shutil
 import tempfile
 import threading
 import time
+import urllib.request
 import uuid
 import zipfile
 from pathlib import Path
@@ -21,7 +22,7 @@ from pathlib import Path
 import yt_dlp
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from pydantic import BaseModel
 
 app = FastAPI(title="HQ Media Downloader")
@@ -128,6 +129,21 @@ def _safe_name(user_name: str | None, original: str) -> str:
     return base if base.lower().endswith(ext.lower()) else base + ext
 
 
+def _entry_meta(e: dict) -> dict:
+    """Pull preview info (url, title, thumbnail, duration) from a yt-dlp entry."""
+    thumb = e.get("thumbnail")
+    if not thumb:
+        thumbs = e.get("thumbnails")
+        if isinstance(thumbs, list) and thumbs:
+            thumb = (thumbs[-1] or {}).get("url")
+    return {
+        "url": e.get("url") or e.get("webpage_url"),
+        "title": e.get("title") or (str(e.get("id")) if e.get("id") else None) or "video",
+        "thumbnail": thumb,
+        "duration": e.get("duration"),
+    }
+
+
 # --------------------------------------------------------------------------- #
 # Info: preview the link before downloading
 # --------------------------------------------------------------------------- #
@@ -175,22 +191,39 @@ def expand(req: ExpandReq):
 
     entries = info.get("entries") if isinstance(info, dict) else None
     if not entries:
-        return {"is_profile": False, "title": info.get("title"), "count": 1, "urls": [req.url]}
+        meta = _entry_meta(info)
+        meta["url"] = info.get("webpage_url") or req.url
+        return {"is_profile": False, "title": info.get("title"), "count": 1, "items": [meta]}
 
-    urls = []
+    items = []
     for e in entries:
         if not e:
             continue
-        u = e.get("url") or e.get("webpage_url")
-        if u and u.startswith("http"):
-            urls.append(u)
+        m = _entry_meta(e)
+        if m["url"] and m["url"].startswith("http"):
+            items.append(m)
     return {
         "is_profile": True,
         "title": info.get("title") or info.get("uploader") or "profile",
-        "count": len(urls),
+        "count": len(items),
         "capped": len(entries) >= cap,
-        "urls": urls,
+        "items": items,
     }
+
+
+@app.get("/api/thumb")
+def thumb(u: str):
+    """Proxy a thumbnail image so it loads in the browser (bypasses hotlink/CORS)."""
+    if not u.startswith(("http://", "https://")):
+        raise HTTPException(status_code=400, detail="bad url")
+    try:
+        request = urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(request, timeout=10) as resp:
+            data = resp.read()
+            ctype = resp.headers.get("Content-Type", "image/jpeg")
+    except Exception:  # noqa: BLE001
+        raise HTTPException(status_code=404, detail="thumbnail unavailable")
+    return Response(content=data, media_type=ctype, headers={"Cache-Control": "max-age=3600"})
 
 
 # --------------------------------------------------------------------------- #
