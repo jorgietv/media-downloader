@@ -83,11 +83,11 @@
     </header>
 
     <div class="card">
-      <textarea id="links" placeholder="Paste one or more links here — one per line…
+      <textarea id="links" placeholder="Paste links — one per line — or a whole profile/channel URL…
+https://www.tiktok.com/@username          (grabs the whole profile)
 https://www.youtube.com/watch?v=...
-https://www.tiktok.com/@user/video/...
 https://www.instagram.com/reel/..."></textarea>
-      <div class="hint" id="hint">Tip: paste as many links as you like, one per line.</div>
+      <div class="hint" id="hint">Tip: paste individual links, or a TikTok/channel <b>profile</b> URL to grab everything on it.</div>
 
       <div class="controls">
         <div class="seg" id="modeSeg">
@@ -157,22 +157,35 @@ https://www.instagram.com/reel/..."></textarea>
   }
 
   async function startAll() {
-    const urls = parseLinks();
-    if (!urls.length) { $("hint").textContent = "Please paste at least one valid link (starting with http)."; return; }
-    $("hint").textContent = urls.length + " link" + (urls.length>1?"s":"") + " queued.";
+    const lines = parseLinks();
+    if (!lines.length) { $("hint").textContent = "Please paste at least one valid link (starting with http)."; return; }
     $("goBtn").disabled = true;
     $("items").innerHTML = ""; $("zipbar").style.display = "none";
+
+    // Expand any profile / channel / playlist links into their individual videos.
+    $("hint").textContent = "Resolving links…";
+    let urls = [];
+    for (const line of lines) {
+      try {
+        const res = await (await fetch("/api/expand", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: line }),
+        })).json();
+        if (res && res.urls && res.urls.length) {
+          if (res.is_profile) $("hint").textContent = "Found " + res.count + " item" + (res.count > 1 ? "s" : "") + " in " + (res.title || "profile") + "…";
+          urls.push(...res.urls);
+        } else { urls.push(line); }
+      } catch { urls.push(line); }
+    }
+    const seen = new Set();
+    urls = urls.filter(u => (seen.has(u) ? false : seen.add(u)));
+    if (!urls.length) { $("hint").textContent = "Couldn't find anything to download at that link."; $("goBtn").disabled = false; return; }
+    $("hint").textContent = urls.length + " video" + (urls.length > 1 ? "s" : "") + " queued.";
+
     rows = urls.map(makeRow);
-
     let next = 0;
-    const worker = async () => {
-      while (next < rows.length) {
-        const row = rows[next++];
-        await runOne(row);
-      }
-    };
+    const worker = async () => { while (next < rows.length) { await runOne(rows[next++]); } };
     await Promise.all(Array.from({length: Math.min(MAX_CONCURRENT, rows.length)}, worker));
-
     $("goBtn").disabled = false;
     updateZipBar();
   }

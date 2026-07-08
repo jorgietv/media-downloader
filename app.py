@@ -109,6 +109,15 @@ class ZipReq(BaseModel):
     names: dict[str, str] | None = None   # optional {job_id: custom filename}
 
 
+class ExpandReq(BaseModel):
+    url: str
+    limit: int = 0   # 0 -> use the server default cap
+
+
+# Max videos to pull from a single profile/channel/playlist (protects the host).
+PROFILE_LIMIT = int(os.environ.get("PROFILE_LIMIT", "25"))
+
+
 def _safe_name(user_name: str | None, original: str) -> str:
     """Sanitize a user-chosen filename, always keeping the real extension."""
     ext = Path(original).suffix
@@ -144,6 +153,43 @@ def info(req: URLReq):
         "duration": data.get("duration"),
         "extractor": data.get("extractor_key"),
         "heights": heights,
+    }
+
+
+@app.post("/api/expand")
+def expand(req: ExpandReq):
+    """Turn a profile / channel / playlist URL into its individual video URLs.
+    A single video just returns itself (is_profile = False)."""
+    cap = req.limit if req.limit and req.limit > 0 else PROFILE_LIMIT
+    opts = {
+        **_base_opts(),
+        "skip_download": True,
+        "extract_flat": "in_playlist",   # list entries without hitting each one
+        "playlistend": cap,
+    }
+    try:
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(req.url, download=False)
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(status_code=400, detail=_friendly_error(str(e)))
+
+    entries = info.get("entries") if isinstance(info, dict) else None
+    if not entries:
+        return {"is_profile": False, "title": info.get("title"), "count": 1, "urls": [req.url]}
+
+    urls = []
+    for e in entries:
+        if not e:
+            continue
+        u = e.get("url") or e.get("webpage_url")
+        if u and u.startswith("http"):
+            urls.append(u)
+    return {
+        "is_profile": True,
+        "title": info.get("title") or info.get("uploader") or "profile",
+        "count": len(urls),
+        "capped": len(entries) >= cap,
+        "urls": urls,
     }
 
 
