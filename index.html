@@ -154,7 +154,7 @@
       sub: "Paste links or a profile — preview everything, pick what you want, download in top quality.",
       bulk: "bulk", preview: "preview",
       ph: "Paste links — one per line — or a whole profile/channel URL…\nhttps://www.tiktok.com/@username          (grabs the whole profile)\nhttps://www.youtube.com/watch?v=...\nhttps://www.instagram.com/reel/...",
-      hint: 'Tip: paste many links to download songs/videos in bulk, or a <b>profile</b> URL to preview everything on it.',
+      hint: 'Tip: paste links — or a whole chat — and it grabs every URL automatically. A <b>profile</b> URL previews everything on it.',
       video: "🎬 Video", audio: "🎵 Audio",
       q_best: "Best available", q_4k: "4K (2160p)", q_1440: "1440p", q_1080: "1080p (default)", q_720: "720p",
       q_mp3: "MP3 320kbps (default)", q_orig: "Original quality (no re-encode)",
@@ -181,7 +181,7 @@
       sub: "Pega enlaces o un perfil — previsualiza todo, elige lo que quieras y descarga en máxima calidad.",
       bulk: "masivo", preview: "vista previa",
       ph: "Pega enlaces — uno por línea — o la URL de un perfil/canal completo…\nhttps://www.tiktok.com/@usuario          (toma todo el perfil)\nhttps://www.youtube.com/watch?v=...\nhttps://www.instagram.com/reel/...",
-      hint: 'Consejo: pega varios enlaces para descargar canciones/videos en masa, o una URL de <b>perfil</b> para previsualizar todo.',
+      hint: 'Consejo: pega enlaces — o un chat entero — y extrae todas las URLs automáticamente. Una URL de <b>perfil</b> previsualiza todo.',
       video: "🎬 Video", audio: "🎵 Audio",
       q_best: "Mejor disponible", q_4k: "4K (2160p)", q_1440: "1440p", q_1080: "1080p (predet.)", q_720: "720p",
       q_mp3: "MP3 320kbps (predet.)", q_orig: "Calidad original (sin recodificar)",
@@ -266,10 +266,12 @@
   }
 
   function parseLinks() {
+    // Pull every http(s) URL out of whatever was pasted — works with raw chat
+    // logs (timestamps, names, other text and languages all get ignored).
+    const found = ($("links").value.match(/https?:\/\/[^\s<>"'\]\)]+/gi) || [])
+      .map(u => u.replace(/[.,;:!?]+$/, ""));   // strip trailing punctuation
     const seen = new Set();
-    return $("links").value.split("\n").map(s => s.trim())
-      .filter(s => s && /^https?:\/\//i.test(s))
-      .filter(s => (seen.has(s) ? false : seen.add(s)));
+    return found.filter(u => (seen.has(u) ? false : seen.add(u)));
   }
 
   // -------------------------------------------------------------------------
