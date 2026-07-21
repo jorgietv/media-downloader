@@ -3,27 +3,31 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>HQ Media Downloader</title>
+<title>Emerald Media Downloader</title>
 <style>
   :root {
-    --bg: #0b0f17; --panel: #131a26; --panel-2: #1b2534; --line: #263243;
-    --text: #e8edf4; --muted: #93a1b5; --accent: #5b8cff; --accent-2: #7c5cff;
-    --ok: #2fd07a; --err: #ff6b6b;
+    --bg: #0a1410; --panel: #10201a; --panel-2: #16281f; --line: #24402f;
+    --text: #e9f5ee; --muted: #8fb4a0; --accent: #10b981; --accent-2: #34d399;
+    --ok: #34d399; --err: #ff6b6b;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; min-height: 100vh;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: radial-gradient(1100px 600px at 50% -10%, #1a2436 0%, var(--bg) 55%);
-    color: var(--text); display: flex; justify-content: center; padding: 40px 16px 64px;
+    background: radial-gradient(1100px 600px at 50% -10%, #12261c 0%, var(--bg) 55%);
+    color: var(--text); display: flex; justify-content: center; padding: 26px 16px 64px;
   }
   .wrap { width: 100%; max-width: 680px; }
+  .langbar { display: flex; justify-content: flex-end; gap: 6px; margin-bottom: 14px; }
+  .langbtn { border: 1px solid var(--line); background: var(--panel); color: var(--muted); border-radius: 999px; padding: 5px 13px; font-size: 12px; font-weight: 700; cursor: pointer; letter-spacing: .03em; }
+  .langbtn.active { background: var(--accent); color: #05130d; border-color: var(--accent); }
   header { text-align: center; margin-bottom: 22px; }
-  h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -0.02em; }
+  .logo { font-size: 27px; margin: 0 0 6px; letter-spacing: -0.02em; font-weight: 800; }
+  .logo .gem { color: var(--accent-2); }
   .sub { color: var(--muted); font-size: 14px; }
   .badges { display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
   .badge { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; background: var(--panel); }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.35); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
   textarea {
     width: 100%; min-height: 104px; resize: vertical; background: var(--panel-2);
     border: 1px solid var(--line); color: var(--text); border-radius: 10px;
@@ -34,11 +38,11 @@
   .controls { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
   .seg { display: flex; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 4px; flex: 1; min-width: 180px; }
   .seg button { flex: 1; background: transparent; color: var(--muted); padding: 9px; font-size: 14px; border-radius: 7px; border: none; cursor: pointer; }
-  .seg button.active { background: var(--accent); color: #fff; }
+  .seg button.active { background: var(--accent); color: #05130d; font-weight: 600; }
   select { flex: 1; min-width: 180px; background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font-size: 15px; outline: none; }
   select:focus { border-color: var(--accent); }
-  button.primary { border: none; cursor: pointer; font-weight: 600; border-radius: 10px; font-size: 16px; padding: 14px 18px; color: white; background: linear-gradient(135deg, var(--accent), var(--accent-2)); transition: opacity .2s ease; }
-  button.primary:hover { opacity: .93; }
+  button.primary { border: none; cursor: pointer; font-weight: 700; border-radius: 10px; font-size: 16px; padding: 14px 18px; color: #05130d; background: linear-gradient(135deg, var(--accent), var(--accent-2)); transition: opacity .2s ease; }
+  button.primary:hover { opacity: .92; }
   button.primary:disabled { opacity: .5; cursor: not-allowed; }
   .go { width: 100%; margin-top: 16px; }
   .selbar { display: none; margin-top: 18px; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
@@ -51,7 +55,7 @@
   .pcard { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); padding: 10px 12px; cursor: pointer; transition: border-color .15s; }
   .pcard.sel { border-color: var(--accent); }
   .pcard input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
-  .pthumb { position: relative; width: 100px; height: 60px; border-radius: 8px; background: #0a0e16; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #4a5a70; font-size: 20px; overflow: hidden; }
+  .pthumb { position: relative; width: 100px; height: 60px; border-radius: 8px; background: #07110c; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #3f6b52; font-size: 20px; overflow: hidden; }
   .pthumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .pinfo { min-width: 0; flex: 1; }
   .ptitle { font-size: 14px; font-weight: 600; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -64,7 +68,7 @@
   .items { margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
   .item { border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); padding: 12px 14px; }
   .item-top { display: flex; align-items: center; gap: 10px; }
-  .rthumb { position: relative; width: 56px; height: 34px; border-radius: 6px; background: #0a0e16; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #4a5a70; font-size: 13px; overflow: hidden; }
+  .rthumb { position: relative; width: 56px; height: 34px; border-radius: 6px; background: #07110c; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #3f6b52; font-size: 13px; overflow: hidden; }
   .rthumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
   .dot.run { background: var(--accent); animation: pulse 1s infinite; }
@@ -77,31 +81,33 @@
   .rename { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 7px 10px; font-size: 13px; font-family: inherit; outline: none; }
   .rename:focus { border-color: var(--accent); }
   .ext { color: var(--muted); font-size: 13px; flex-shrink: 0; }
-  .dl { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #fff; border: none; border-radius: 8px; padding: 8px 13px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; flex-shrink: 0; }
+  .dl { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #05130d; border: none; border-radius: 8px; padding: 8px 13px; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none; flex-shrink: 0; }
   .dl:hover { opacity: .9; }
-  .bar { height: 7px; background: var(--panel); border-radius: 999px; overflow: hidden; border: 1px solid var(--line); margin-top: 9px; }
+  .bar { height: 7px; background: var(--bg); border-radius: 999px; overflow: hidden; border: 1px solid var(--line); margin-top: 9px; }
   .fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .3s ease; }
   footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 22px; line-height: 1.6; }
 </style>
 </head>
 <body>
   <div class="wrap">
+    <div class="langbar">
+      <button class="langbtn" id="langEn" onclick="applyLang('en')">EN</button>
+      <button class="langbtn" id="langEs" onclick="applyLang('es')">ES</button>
+    </div>
+
     <header>
-      <h1>HQ Media Downloader</h1>
-      <div class="sub">Paste links or a profile — preview everything, pick what you want, download in highest quality.</div>
+      <div class="logo"><span class="gem">◈</span> Emerald Media Downloader</div>
+      <div class="sub" id="sub"></div>
       <div class="badges">
         <span class="badge">YouTube</span><span class="badge">TikTok</span>
-        <span class="badge">Instagram</span><span class="badge">up to 4K</span>
-        <span class="badge">bulk + preview</span>
+        <span class="badge">Instagram</span><span class="badge">4K</span>
+        <span class="badge" id="badgeBulk">bulk</span><span class="badge" id="badgePreview">preview</span>
       </div>
     </header>
 
     <div class="card">
-      <textarea id="links" placeholder="Paste links — one per line — or a whole profile/channel URL…
-https://www.tiktok.com/@username          (grabs the whole profile)
-https://www.youtube.com/watch?v=...
-https://www.instagram.com/reel/..."></textarea>
-      <div class="hint" id="hint">Tip: paste individual links, or a TikTok/channel <b>profile</b> URL to preview everything on it.</div>
+      <textarea id="links"></textarea>
+      <div class="hint" id="hint"></div>
 
       <div class="controls">
         <div class="seg" id="modeSeg">
@@ -115,34 +121,120 @@ https://www.instagram.com/reel/..."></textarea>
 
       <div class="selbar" id="selbar">
         <div class="selleft">
-          <button class="chip" onclick="setAllChecked(true)">Select all</button>
-          <button class="chip" onclick="setAllChecked(false)">Clear</button>
+          <button class="chip" id="chipAll" onclick="setAllChecked(true)">Select all</button>
+          <button class="chip" id="chipClear" onclick="setAllChecked(false)">Clear</button>
           <span class="selcount" id="selcount"></span>
         </div>
-        <button class="primary" id="dlSelBtn" onclick="downloadSelected()">⬇ Download selected</button>
+        <button class="primary" id="dlSelBtn" onclick="downloadSelected()">Download selected</button>
       </div>
       <div class="previews" id="previews"></div>
 
       <div class="zipbar" id="zipbar">
         <span class="summary" id="summary"></span>
-        <button class="zipbtn" id="zipBtn" onclick="downloadZip()">⬇ Download all as ZIP</button>
+        <button class="zipbtn" id="zipBtn" onclick="downloadZip()"></button>
       </div>
       <div class="items" id="items"></div>
     </div>
 
-    <footer>
-      For downloading your own content, or content you have the rights to.<br />
-      Highest quality works by merging the best video &amp; audio streams with ffmpeg.
-    </footer>
+    <footer><span id="footer1"></span><br /><span id="footer2"></span></footer>
   </div>
 
 <script>
   const $ = (id) => document.getElementById(id);
-  let mode = "video";
   const MAX_CONCURRENT = 3;
+  let mode = "video";
   let previewItems = [];
   let rows = [];
 
+  // -------------------------------------------------------------------------
+  // Translations (English + Spanish)
+  // -------------------------------------------------------------------------
+  const I18N = {
+    en: {
+      sub: "Paste links or a profile — preview everything, pick what you want, download in top quality.",
+      bulk: "bulk", preview: "preview",
+      ph: "Paste links — one per line — or a whole profile/channel URL…\nhttps://www.tiktok.com/@username          (grabs the whole profile)\nhttps://www.youtube.com/watch?v=...\nhttps://www.instagram.com/reel/...",
+      hint: 'Tip: paste many links to download songs/videos in bulk, or a <b>profile</b> URL to preview everything on it.',
+      video: "🎬 Video", audio: "🎵 Audio",
+      q_best: "Best available", q_4k: "4K (2160p)", q_1440: "1440p", q_1080: "1080p (default)", q_720: "720p",
+      q_mp3: "MP3 320kbps (default)", q_orig: "Original quality (no re-encode)",
+      previewBtn: "Preview", selectAll: "Select all", clear: "Clear",
+      selcount: (n, m) => `${n} of ${m} selected`,
+      dlSel: (n) => `⬇ Download selected (${n})`,
+      zip: "⬇ Download all as ZIP",
+      ready: (d, f) => `${d} ready` + (f ? ` · ${f} failed` : ""),
+      dl: "⬇ Download",
+      loading: "Loading previews…",
+      found: (n, t) => `Found ${n} item${n > 1 ? "s" : ""} in ${t}…`,
+      foundSel: (n) => `${n} found — untick any you don't want, then download.`,
+      queued: (n) => `${n} queued.`,
+      noValid: "Please paste at least one valid link (starting with http).",
+      nothing: "Couldn't find anything at that link.",
+      starting: "starting…", merging: "merging ", queuedOne: "queued",
+      couldntStart: "Could not start.", failed: "Failed",
+      zipping: "Zipping…", zipFail: "ZIP failed — try individual links",
+      editName: "Edit the name before downloading",
+      footer1: "For downloading your own content, or content you have the rights to.",
+      footer2: "Top quality works by merging the best video & audio streams with ffmpeg.",
+    },
+    es: {
+      sub: "Pega enlaces o un perfil — previsualiza todo, elige lo que quieras y descarga en máxima calidad.",
+      bulk: "masivo", preview: "vista previa",
+      ph: "Pega enlaces — uno por línea — o la URL de un perfil/canal completo…\nhttps://www.tiktok.com/@usuario          (toma todo el perfil)\nhttps://www.youtube.com/watch?v=...\nhttps://www.instagram.com/reel/...",
+      hint: 'Consejo: pega varios enlaces para descargar canciones/videos en masa, o una URL de <b>perfil</b> para previsualizar todo.',
+      video: "🎬 Video", audio: "🎵 Audio",
+      q_best: "Mejor disponible", q_4k: "4K (2160p)", q_1440: "1440p", q_1080: "1080p (predet.)", q_720: "720p",
+      q_mp3: "MP3 320kbps (predet.)", q_orig: "Calidad original (sin recodificar)",
+      previewBtn: "Vista previa", selectAll: "Seleccionar todo", clear: "Limpiar",
+      selcount: (n, m) => `${n} de ${m} seleccionados`,
+      dlSel: (n) => `⬇ Descargar seleccionados (${n})`,
+      zip: "⬇ Descargar todo en ZIP",
+      ready: (d, f) => `${d} listo${d > 1 ? "s" : ""}` + (f ? ` · ${f} fallaron` : ""),
+      dl: "⬇ Descargar",
+      loading: "Cargando vistas previas…",
+      found: (n, t) => `Se encontraron ${n} elemento${n > 1 ? "s" : ""} en ${t}…`,
+      foundSel: (n) => `${n} encontrados — desmarca los que no quieras y descarga.`,
+      queued: (n) => `${n} en cola.`,
+      noValid: "Pega al menos un enlace válido (que empiece con http).",
+      nothing: "No se encontró nada en ese enlace.",
+      starting: "iniciando…", merging: "combinando ", queuedOne: "en cola",
+      couldntStart: "No se pudo iniciar.", failed: "Falló",
+      zipping: "Comprimiendo…", zipFail: "Falló el ZIP — prueba enlaces individuales",
+      editName: "Edita el nombre antes de descargar",
+      footer1: "Para descargar tu propio contenido, o contenido sobre el que tienes derechos.",
+      footer2: "La máxima calidad combina las mejores pistas de video y audio con ffmpeg.",
+    },
+  };
+  let lang = "en";
+  try { lang = localStorage.getItem("emd_lang") || "en"; } catch {}
+  let T = I18N[lang] || I18N.en;
+
+  function applyLang(l) {
+    lang = I18N[l] ? l : "en"; T = I18N[lang];
+    try { localStorage.setItem("emd_lang", lang); } catch {}
+    document.documentElement.lang = lang;
+    $("langEn").classList.toggle("active", lang === "en");
+    $("langEs").classList.toggle("active", lang === "es");
+    $("sub").textContent = T.sub;
+    $("badgeBulk").textContent = T.bulk;
+    $("badgePreview").textContent = T.preview;
+    $("links").placeholder = T.ph;
+    $("hint").innerHTML = T.hint;
+    document.querySelector('#modeSeg [data-mode="video"]').textContent = T.video;
+    document.querySelector('#modeSeg [data-mode="audio"]').textContent = T.audio;
+    $("previewBtn").textContent = T.previewBtn;
+    $("chipAll").textContent = T.selectAll;
+    $("chipClear").textContent = T.clear;
+    $("zipBtn").textContent = T.zip;
+    $("footer1").textContent = T.footer1;
+    $("footer2").textContent = T.footer2;
+    buildQuality(true);
+    updateSel(); updateZipBar();
+  }
+
+  // -------------------------------------------------------------------------
+  // Format helpers
+  // -------------------------------------------------------------------------
   function fmtDuration(s) {
     if (!s) return "";
     s = Math.round(s);
@@ -155,19 +247,23 @@ https://www.instagram.com/reel/..."></textarea>
       (url ? '<img src="/api/thumb?u=' + encodeURIComponent(url) + '" onerror="this.remove()">' : '') + '</div>';
   }
 
+  // Defaults: video → 1080p, audio → MP3
+  function buildQuality(keep) {
+    const q = $("quality");
+    const prev = q.value;
+    q.innerHTML = "";
+    const opts = mode === "video"
+      ? [["best", T.q_best], ["2160", T.q_4k], ["1440", T.q_1440], ["1080", T.q_1080], ["720", T.q_720]]
+      : [["mp3", T.q_mp3], ["original", T.q_orig]];
+    opts.forEach(([v, l]) => q.add(new Option(l, v)));
+    const def = mode === "video" ? "1080" : "mp3";
+    q.value = (keep && opts.some(o => o[0] === prev)) ? prev : def;
+  }
   function setMode(m) {
     mode = m;
     document.querySelectorAll("#modeSeg button").forEach((b) => b.classList.toggle("active", b.dataset.mode === m));
-    const q = $("quality"); q.innerHTML = "";
-    if (m === "video") {
-      [["best","Best available"],["2160","4K (2160p)"],["1440","1440p"],["1080","1080p"],["720","720p"]]
-        .forEach(([v,l]) => q.add(new Option(l, v)));
-    } else {
-      q.add(new Option("Original quality (best, no re-encode)", "original"));
-      q.add(new Option("MP3 320kbps (universal)", "mp3"));
-    }
+    buildQuality(false);
   }
-  setMode("video");
 
   function parseLinks() {
     const seen = new Set();
@@ -176,14 +272,16 @@ https://www.instagram.com/reel/..."></textarea>
       .filter(s => (seen.has(s) ? false : seen.add(s)));
   }
 
-  // ---- Phase 1: preview -----------------------------------------------------
+  // -------------------------------------------------------------------------
+  // Phase 1: preview
+  // -------------------------------------------------------------------------
   async function previewAll() {
     const lines = parseLinks();
-    if (!lines.length) { $("hint").textContent = "Please paste at least one valid link (starting with http)."; return; }
+    if (!lines.length) { $("hint").textContent = T.noValid; return; }
     $("previewBtn").disabled = true;
     $("previews").innerHTML = ""; $("selbar").style.display = "none";
     $("items").innerHTML = ""; $("zipbar").style.display = "none";
-    $("hint").textContent = "Loading previews…";
+    $("hint").textContent = T.loading;
 
     let all = [];
     for (const line of lines) {
@@ -193,15 +291,15 @@ https://www.instagram.com/reel/..."></textarea>
           body: JSON.stringify({ url: line }),
         })).json();
         if (res && res.items && res.items.length) {
-          if (res.is_profile) $("hint").textContent = "Found " + res.count + " item" + (res.count > 1 ? "s" : "") + " in " + (res.title || "profile") + "…";
+          if (res.is_profile) $("hint").textContent = T.found(res.count, res.title || "profile");
           all.push(...res.items);
         } else { all.push({ url: line, title: shortUrl(line), thumbnail: null, duration: null }); }
       } catch { all.push({ url: line, title: shortUrl(line), thumbnail: null, duration: null }); }
     }
     const seen = new Set();
     previewItems = all.filter(it => it.url && (seen.has(it.url) ? false : seen.add(it.url)));
-    if (!previewItems.length) { $("hint").textContent = "Couldn't find anything at that link."; $("previewBtn").disabled = false; return; }
-    $("hint").textContent = previewItems.length + " found — untick any you don't want, then download.";
+    if (!previewItems.length) { $("hint").textContent = T.nothing; $("previewBtn").disabled = false; return; }
+    $("hint").textContent = T.foundSel(previewItems.length);
     renderPreviews();
     $("previewBtn").disabled = false;
   }
@@ -229,16 +327,18 @@ https://www.instagram.com/reel/..."></textarea>
   }
   function updateSel() {
     const n = previewItems.filter(it => it.checkbox && it.checkbox.checked).length;
-    $("selcount").textContent = n + " of " + previewItems.length + " selected";
-    const b = $("dlSelBtn"); b.textContent = "⬇ Download selected (" + n + ")"; b.disabled = n === 0;
+    $("selcount").textContent = T.selcount(n, previewItems.length);
+    const b = $("dlSelBtn"); b.textContent = T.dlSel(n); b.disabled = n === 0;
   }
 
-  // ---- Phase 2: download selected -------------------------------------------
+  // -------------------------------------------------------------------------
+  // Phase 2: download selected
+  // -------------------------------------------------------------------------
   async function downloadSelected() {
     const chosen = previewItems.filter(it => it.checkbox && it.checkbox.checked);
     if (!chosen.length) return;
     $("selbar").style.display = "none"; $("previews").innerHTML = "";
-    $("hint").textContent = chosen.length + " queued.";
+    $("hint").textContent = T.queued(chosen.length);
     $("items").innerHTML = ""; $("zipbar").style.display = "none";
     rows = chosen.map(makeRow);
     let next = 0;
@@ -250,7 +350,7 @@ https://www.instagram.com/reel/..."></textarea>
   function makeRow(item) {
     const el = document.createElement("div"); el.className = "item";
     el.innerHTML = '<div class="item-top">' + thumbTag(item.thumbnail, "rthumb") +
-      '<span class="dot"></span><span class="item-title"></span><span class="item-right">queued</span></div>' +
+      '<span class="dot"></span><span class="item-title"></span><span class="item-right">' + T.queuedOne + '</span></div>' +
       '<div class="bar"><div class="fill"></div></div>';
     el.querySelector(".item-title").textContent = item.title || shortUrl(item.url);
     $("items").appendChild(el);
@@ -260,14 +360,14 @@ https://www.instagram.com/reel/..."></textarea>
   }
 
   async function runOne(row) {
-    row.status = "downloading"; row.dot.className = "dot run"; row.right.textContent = "starting…";
+    row.status = "downloading"; row.dot.className = "dot run"; row.right.textContent = T.starting;
     try {
       const r = await fetch("/api/download", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: row.url, mode, quality: $("quality").value }),
       });
       const data = await r.json();
-      if (!r.ok) throw new Error(data.detail || "Could not start.");
+      if (!r.ok) throw new Error(data.detail || T.couldntStart);
       row.jobId = data.job_id;
       await poll(row);
     } catch (e) {
@@ -282,7 +382,7 @@ https://www.instagram.com/reel/..."></textarea>
           const s = await (await fetch("/api/status/" + row.jobId)).json();
           if (s.title) { row.title = s.title; row.titleEl.textContent = s.title; }
           if (s.status === "error") {
-            row.status = "error"; row.el.classList.add("err"); row.dot.className = "dot err"; row.right.textContent = s.error || "Failed";
+            row.status = "error"; row.el.classList.add("err"); row.dot.className = "dot err"; row.right.textContent = s.error || T.failed;
             return resolve();
           }
           if (s.status === "done") {
@@ -294,12 +394,12 @@ https://www.instagram.com/reel/..."></textarea>
             const top = row.el.querySelector(".item-top");
             top.innerHTML = thumbTag(row.thumbnail, "rthumb") +
               '<span class="dot ok"></span>' +
-              '<input class="rename" spellcheck="false" title="Edit the name before downloading" />' +
+              '<input class="rename" spellcheck="false" />' +
               '<span class="ext"></span>' +
-              '<a class="dl" download>⬇ Download</a>';
-            const input = top.querySelector(".rename"); input.value = base;
-            top.querySelector(".ext").textContent = row.ext; row.nameInput = input;
-            const dl = top.querySelector(".dl");
+              '<a class="dl" download></a>';
+            const input = top.querySelector(".rename"); input.value = base; input.title = T.editName;
+            top.querySelector(".ext").textContent = row.ext;
+            const dl = top.querySelector(".dl"); dl.textContent = T.dl; row.nameInput = input;
             const build = () => {
               const nm = (input.value.trim() || base) + row.ext;
               dl.href = "/api/file/" + row.jobId + "?name=" + encodeURIComponent(nm);
@@ -311,7 +411,7 @@ https://www.instagram.com/reel/..."></textarea>
           }
           const pct = s.progress || 0;
           row.fill.style.width = Math.max(3, pct) + "%";
-          row.right.textContent = (s.stage === "processing" ? "merging " : "") + Math.round(pct) + "%";
+          row.right.textContent = (s.stage === "processing" ? T.merging : "") + Math.round(pct) + "%";
           setTimeout(tick, 900);
         } catch { setTimeout(tick, 1500); }
       };
@@ -323,7 +423,7 @@ https://www.instagram.com/reel/..."></textarea>
     const done = rows.filter(r => r.status === "done");
     const failed = rows.filter(r => r.status === "error").length;
     if (!done.length) { $("zipbar").style.display = "none"; return; }
-    $("summary").textContent = done.length + " ready" + (failed ? " · " + failed + " failed" : "");
+    $("summary").textContent = T.ready(done.length, failed);
     $("zipbar").style.display = "flex";
   }
 
@@ -333,7 +433,7 @@ https://www.instagram.com/reel/..."></textarea>
     const ids = done.map(r => r.jobId);
     const names = {};
     done.forEach(r => { if (r.nameInput) names[r.jobId] = (r.nameInput.value.trim() || "") + (r.ext || ""); });
-    const btn = $("zipBtn"); btn.disabled = true; btn.textContent = "Zipping…";
+    const btn = $("zipBtn"); btn.disabled = true; btn.textContent = T.zipping;
     try {
       const r = await fetch("/api/zip", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -345,9 +445,14 @@ https://www.instagram.com/reel/..."></textarea>
       a.href = URL.createObjectURL(blob); a.download = "downloads.zip";
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(a.href);
-    } catch { btn.textContent = "ZIP failed — try individual links"; }
-    finally { btn.disabled = false; if (btn.textContent === "Zipping…") btn.textContent = "⬇ Download all as ZIP"; }
+      btn.textContent = T.zip;
+    } catch { btn.textContent = T.zipFail; }
+    finally { btn.disabled = false; }
   }
+
+  // Init
+  setMode("video");
+  applyLang(lang);
 </script>
 </body>
 </html>
